@@ -312,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 
 /* Gift card modal */
-(function(){
+document.addEventListener('DOMContentLoaded', function(){
   const modal = document.getElementById('giftModal');
   const openBtn = document.getElementById('giftBuyBtn');
   const closeBtn = document.getElementById('giftModalClose');
@@ -373,5 +373,5 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && !modal.hidden) closeModal();
   });
-})();
+});
 
