@@ -97,6 +97,22 @@
       function readCart(){ try{ const raw = localStorage.getItem('cyberduck:cart'); return raw ? JSON.parse(raw) : []; }catch(e){ return []; } }
       function formatPrice(p){ return p.toLocaleString('es-CO'); }
 
+      // Aviso opcional a un bot local de WhatsApp (pywhatkit)
+      function notifyWhatsapp(payload){
+        console.log('📱 Enviando notificación a WhatsApp...', payload);
+        fetch('http://localhost:5001/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => console.log('✅ Respuesta del bot WhatsApp:', data))
+        .catch(err => {
+          console.warn('❌ No se pudo notificar por WhatsApp:', err);
+          console.warn('⚠️  Verifica que whatsbot.py esté ejecutándose en el puerto 5001');
+        });
+      }
+
       const itemsWrap = document.getElementById('checkoutItems');
       const totalEl = document.getElementById('checkoutTotal');
       const cart = readCart();
@@ -153,6 +169,15 @@
         })
         .then(response => {
           if (response.ok) {
+            // Notificar por WhatsApp de forma no bloqueante
+            notifyWhatsapp({
+              name: fullname,
+              email,
+              phone,
+              total,
+              items: cart
+            });
+
             // Success: hide loading, show message, clear cart and form, redirect
             if(loadingIndicator) loadingIndicator.style.display = 'none';
             alert('¡Compra exitosa! Gracias por tu pedido.');
