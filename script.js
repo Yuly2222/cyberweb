@@ -361,6 +361,158 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 })();
 
+/* Search functionality */
+document.addEventListener('DOMContentLoaded', function(){
+  const searchBtn = document.querySelector('.iconbtn[aria-label="Buscar"]');
+  let searchInput = null;
+  let searchModal = null;
+
+  if (searchBtn) {
+    searchBtn.addEventListener('click', function() {
+      if (!searchModal) {
+        createSearchModal();
+      }
+      searchModal.hidden = false;
+      if (searchInput) {
+        searchInput.focus();
+      }
+    });
+  }
+
+  function createSearchModal() {
+    searchModal = document.createElement('div');
+    searchModal.className = 'modal';
+    searchModal.innerHTML = `
+      <div class="modal__backdrop"></div>
+      <div class="modal__content" style="max-width: 600px;">
+        <div class="modal__head">
+          <h3 class="modal__title">Buscar productos</h3>
+          <button class="modal__close" type="button" aria-label="Cerrar">✕</button>
+        </div>
+        <div class="modal__body">
+          <div class="form-group">
+            <input type="text" id="searchInput" placeholder="Buscar productos..." class="input" style="width: 100%;">
+          </div>
+          <div id="searchResults" style="max-height: 400px; overflow-y: auto; margin-top: 16px;"></div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(searchModal);
+
+    searchInput = document.getElementById('searchInput');
+    const closeBtn = searchModal.querySelector('.modal__close');
+    const backdrop = searchModal.querySelector('.modal__backdrop');
+
+    // Close modal functions
+    function closeModal() {
+      searchModal.hidden = true;
+      if (searchInput) {
+        searchInput.value = '';
+      }
+      const resultsDiv = document.getElementById('searchResults');
+      if (resultsDiv) {
+        resultsDiv.innerHTML = '';
+      }
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && !searchModal.hidden) {
+        closeModal();
+      }
+    });
+
+    // Search functionality
+    let searchTimeout = null;
+    searchInput.addEventListener('input', function() {
+      const query = this.value.trim().toLowerCase();
+
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+
+      if (query.length >= 3) {
+        searchTimeout = setTimeout(() => {
+          performSearch(query);
+        }, 300);
+      } else {
+        const resultsDiv = document.getElementById('searchResults');
+        if (resultsDiv) {
+          resultsDiv.innerHTML = query.length > 0 ? '<p style="color: var(--muted);">Ingresa al menos 3 letras para buscar...</p>' : '';
+        }
+      }
+    });
+  }
+
+  async function performSearch(query) {
+    const resultsDiv = document.getElementById('searchResults');
+    if (!resultsDiv) return;
+
+    resultsDiv.innerHTML = '<p style="color: var(--muted);">Buscando...</p>';
+
+    try {
+      // Search across all product categories
+      const searchPromises = [
+        window.cyberduck.cachedFetch('https://script.google.com/macros/s/AKfycby8QkrU25mFNgiP3eq0hKoDFOnBSLvybmAnrjX_m4ibdBAqXekiQNbMs1bZbvdOGRWL/exec'), // Nuevo
+        window.cyberduck.cachedFetch('https://script.google.com/macros/s/AKfycbzlEH33cVRdLmR3cI17bZi7k81OyucZnhqQ7WAPhJcigixl12fpYH03xMfvL77gGl9x/exec'), // Camisetas
+        window.cyberduck.cachedFetch('https://script.google.com/macros/s/AKfycbxi7qSdxN6ZQdzVYTzAHlfGwkjqmll0ldqGspbxFb8T4GstfDK0MasUNflQUymsbOri/exec'), // Faldas
+        window.cyberduck.cachedFetch('https://script.google.com/macros/s/AKfycbw4zEM2NKmejtMMuiBLDdBEMIyIgtwfr1yHoPXxNBz7_mypqhTTX6tu85DFLGD4Cn_b/exec'), // Aretes
+        window.cyberduck.cachedFetch('https://script.google.com/macros/s/AKfycbzDPhkp_9XcrAeg67eek7l5ijVEu7LiWuwgSXR8CEcp1OJwi_vCzqH9bVH0oFI7JLgW/exec'), // Otros
+        window.cyberduck.cachedFetch('https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhGPGNmmLa8riYe4CS2khOSoGTVL7DEQ74nVmLsR-UYhEIfckSl1OMf2zROgO7Pk9OrRZMdX2tTmIOzrAkE89PlJIWLHdg4LmF5ABC6Umj2AlQ2Vxyj1ARtSg8PyBFrtT2ZPR9mlc_MN9kA1JepzEkRbABtVxfaKe8FheiklWy8zknXpFF-RcAW2nhuoHkrZ_po5njURSs2EkOJFcXVdF4ZeMaSPNy4r5yMy7UcET3mSYwFlE2JAbVFFYZHtirYZqa3p4YzdBY21pf--RSGJuXOEDH_zg&lib=M-YxSEsKo8g88BRj95yNKp5OjAoyKQGY4'), // Collares
+        window.cyberduck.cachedFetch('https://script.google.com/macros/s/AKfycbz4mKWXZ2NSQ_T2U6cFaLm9CvKLsHzvwJAd2-PSnvqIizSmjeiDgGC7A8vDCtXrfM0e/exec'), // Manillas
+        window.cyberduck.cachedFetch('https://script.google.com/macros/s/AKfycbyLTeWyAHgR_0i2bE50o-ufvp0gK_FnNcVaMc_S80xpSW-6MHQgTLoxm-6eeYeWz6hE/exec'), // Impresiones
+        window.cyberduck.cachedFetch('https://script.google.com/macros/s/AKfycbzOjIQtpaVbU8ymtev2cioDvUz6N255uDpsvAyHLf5PFNpBnLBqd4b6HAPKwHYuY72V/exec') // Gargantillas
+      ];
+
+      const results = await Promise.all(searchPromises);
+      const allProducts = [];
+
+      results.forEach(result => {
+        if (result && result.data && Array.isArray(result.data)) {
+          allProducts.push(...result.data);
+        }
+      });
+
+      // Filter products that match the search query
+      const matches = allProducts.filter(product => {
+        const name = (product.NAME || product.name || product.nombre || '').toLowerCase();
+        const desc = (product.DESC || product.desc || product.descripcion || '').toLowerCase();
+        return name.includes(query) || desc.includes(query);
+      });
+
+      if (matches.length > 0) {
+        resultsDiv.innerHTML = matches.slice(0, 10).map(product => {
+          const name = product.NAME || product.name || product.nombre || 'Producto';
+          const price = product.PRICE || product.price || product.precio || '';
+          const image = product.IMAGE || product.image || product.imagen || '';
+          const formattedPrice = price ? `$${parseFloat(price).toLocaleString('es-CO')} COP` : '';
+
+          return `
+            <div class="search-result-item" style="display: flex; gap: 12px; padding: 12px; border-bottom: 1px solid var(--line); cursor: pointer;" onclick="window.location.href='./product.html'; localStorage.setItem('cyberduck:selectedProduct', JSON.stringify({name:'${name}',price:'${price}',image:'${image}',desc:'${product.DESC || product.desc || product.descripcion || ''}'}))">
+              <div style="width: 60px; height: 60px; background: var(--panel); border-radius: 8px; overflow: hidden; flex-shrink: 0;">
+                ${image ? `<img src="${image}" alt="${name}" style="width: 100%; height: 100%; object-fit: cover;">` : ''}
+              </div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; margin-bottom: 4px;">${name}</div>
+                <div style="color: var(--muted); font-size: 14px;">${formattedPrice}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        resultsDiv.innerHTML = '<p style="color: var(--muted);">No se encontraron productos que coincidan con tu búsqueda.</p>';
+      }
+
+    } catch (error) {
+      console.error('Search error:', error);
+      resultsDiv.innerHTML = '<p style="color: var(--muted);">Error al buscar productos. Inténtalo de nuevo.</p>';
+    }
+  }
+});
+
 /* Gift card modal */
 document.addEventListener('DOMContentLoaded', function(){
   const modal = document.getElementById('giftModal');
