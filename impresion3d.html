@@ -65,12 +65,7 @@
           <a class="viewall" href="./index.html">volver al inicio</a>
         </div>
 
-        <div class="filter-tabs" id="filterTabs">
-          <button class="filter-tab" data-cat="todos">Todo</button>
-          <button class="filter-tab" data-cat="llaveros">Llaveros</button>
-          <button class="filter-tab" data-cat="figuras">Figuras</button>
-          <button class="filter-tab" data-cat="coleccion">Colección</button>
-        </div>
+
 
         <div style="margin:18px 0;">
           <a class="viewall" href="./personalizar.html">Personaliza tu 3D →</a>
@@ -104,48 +99,9 @@
       }
     }
 
-    // Obtener parámetro cat de URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const category = urlParams.get('cat') || 'todos';
-    
     // Actualizar título
     const titleEl = document.getElementById('impresion3dTitle');
-    if (category === 'llaveros') {
-      titleEl.textContent = 'Impresión 3D — Llaveros';
-    } else if (category === 'figuras') {
-      titleEl.textContent = 'Impresión 3D — Figuras';
-    } else if (category === 'coleccion') {
-      titleEl.textContent = 'Impresión 3D — Colección';
-    } else {
-      titleEl.textContent = 'Impresión 3D — Todo';
-    }
-
-    // Filtrar productos
-    const items = document.querySelectorAll('.gallery__item');
-    items.forEach(item => {
-      const itemCat = item.getAttribute('data-category');
-      if (category === 'todos' || category === itemCat) {
-        item.style.display = 'flex';
-      } else {
-        item.style.display = 'none';
-      }
-    });
-
-    // Marcar tab activo
-    const tabs = document.querySelectorAll('.filter-tab');
-    tabs.forEach(tab => {
-      const tabCat = tab.getAttribute('data-cat');
-      if (tabCat === category) {
-        tab.classList.add('is-active');
-      } else {
-        tab.classList.remove('is-active');
-      }
-      
-      // Click handler para cambiar filtro
-      tab.addEventListener('click', () => {
-        window.location.href = `./impresion3d.html?cat=${tabCat}`;
-      });
-    });
+    titleEl.textContent = 'Impresión 3D — Todo';
 
     // Función para asignar comportamiento de click a los productos
     function setupProductClickHandlers() {
@@ -204,13 +160,13 @@
         const name = normalized['name'] || normalized['nombre'] || normalized['producto'] || normalized['title'] || 'Producto';
         const price = normalized['price'] || normalized['precio'] || '';
         const formattedPrice = price ? `$${parseFloat(price).toLocaleString('es-CO')}` : '';
-        const category = (normalized['category'] || normalized['categoria'] || normalized['type'] || '').toString().toLowerCase();
+        const itemCategory = (normalized['category'] || normalized['categoria'] || normalized['type'] || '').toString().toLowerCase();
         const image = normalized['image'] || normalized['imagen'] || normalized['img'] || '';
         const desc = normalized['desc'] || normalized['descripcion'] || normalized['description'] || '';
 
         const article = document.createElement('article');
         article.className = 'gallery__item';
-        if (category) article.setAttribute('data-category', category);
+        if (itemCategory) article.setAttribute('data-category', itemCategory);
 
         // Usar lazy loading
         const imageDiv = document.createElement('div');
@@ -222,7 +178,7 @@
         metaDiv.innerHTML = `
           <p class="gallery__name">${name}</p>
           <p class="gallery__price">${formattedPrice}</p>
-          <p class="gallery__category">${category ? category.charAt(0).toUpperCase() + category.slice(1) : ''}</p>
+          <p class="gallery__category">${itemCategory ? itemCategory.charAt(0).toUpperCase() + itemCategory.slice(1) : ''}</p>
           <p class="gallery__desc" style="display:none">${desc}</p>
         `;
 
@@ -232,17 +188,6 @@
       });
 
       gallery.appendChild(fragment);
-
-      // aplicar filtros según la categoría actual
-      const items = document.querySelectorAll('.gallery__item');
-      items.forEach(item => {
-        const itemCat = item.getAttribute('data-category');
-        if (category === 'todos' || category === itemCat) {
-          item.style.display = 'flex';
-        } else {
-          item.style.display = 'none';
-        }
-      });
 
       setupProductClickHandlers();
       setTimeout(() => window.cyberduck.applyLazyLoading(), 100);
