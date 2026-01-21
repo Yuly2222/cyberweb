@@ -28,19 +28,32 @@ const imageObserver = new IntersectionObserver((entries, observer) => {
     if (entry.isIntersecting) {
       const element = entry.target;
       const imageUrl = element.dataset.bgImage;
-      
-      if (imageUrl) {
+
+      if (imageUrl && imageUrl.trim() !== '') {
         // Precargar imagen
         const img = new Image();
+        const timeout = setTimeout(() => {
+          console.warn('Image load timeout for:', imageUrl);
+          element.classList.add('is-error');
+          observer.unobserve(element);
+        }, 10000); // Timeout de 10 segundos para evitar carga infinita
+
         img.onload = () => {
+          clearTimeout(timeout);
           element.style.backgroundImage = `url(${imageUrl})`;
           element.classList.add('is-loaded');
+          observer.unobserve(element);
         };
         img.onerror = () => {
+          clearTimeout(timeout);
+          console.warn('Image load error for:', imageUrl);
           element.classList.add('is-error');
+          observer.unobserve(element);
         };
         img.src = imageUrl;
-        
+      } else {
+        // No image URL, set error state immediately
+        element.classList.add('is-error');
         observer.unobserve(element);
       }
     }
@@ -54,9 +67,36 @@ const imageObserver = new IntersectionObserver((entries, observer) => {
 function applyLazyLoading(selector = '.gallery__image') {
   const images = document.querySelectorAll(selector);
   images.forEach(img => {
-    if (!img.dataset.observed) {
-      imageObserver.observe(img);
-      img.dataset.observed = 'true';
+    const imageUrl = img.dataset.bgImage;
+    if (imageUrl && imageUrl.trim() !== '' && !img.classList.contains('is-loaded') && !img.classList.contains('is-error')) {
+      // Cargar imagen inmediatamente para debugging
+      const imgEl = new Image();
+      imgEl.onload = () => {
+        console.log('Image loaded successfully:', imageUrl);
+        // Create an actual img element for better display
+        const actualImg = document.createElement('img');
+        actualImg.src = imageUrl;
+        actualImg.style.width = '100%';
+        actualImg.style.height = '100%';
+        actualImg.style.objectFit = 'cover';
+        actualImg.style.borderRadius = '16px';
+        actualImg.alt = 'Producto';
+        img.innerHTML = '';
+        img.appendChild(actualImg);
+        img.classList.remove('gallery__image--loading');
+        img.classList.add('is-loaded');
+        console.log('Created img element for:', imageUrl);
+      };
+      imgEl.onerror = () => {
+        console.warn('Error loading image:', imageUrl);
+        img.classList.remove('gallery__image--loading');
+        img.classList.add('is-error');
+      };
+      imgEl.src = imageUrl;
+    } else if (!imageUrl || imageUrl.trim() === '') {
+      console.warn('Empty image URL for element:', img);
+      img.classList.remove('gallery__image--loading');
+      img.classList.add('is-error');
     }
   });
 }

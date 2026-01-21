@@ -168,7 +168,7 @@
           const price = (normalized['price'] || normalized['precio'] || '').toString().replace(/\./g, '').replace(',', '.');
           const formattedPrice = parseFloat(price) ? parseFloat(price).toLocaleString('es-CO') : '';
           const category = (normalized['category'] || normalized['categoria'] || '').toString().toLowerCase();
-          const image = normalized['image'] || normalized['imagen'] || normalized['img'] || '';
+          const image = (normalized['image'] || normalized['imagen'] || normalized['img'] || '').trim();
           const desc = normalized['desc'] || normalized['descripcion'] || normalized['description'] || '';
 
           const article = document.createElement('article');
@@ -196,7 +196,7 @@
 
         gallery.appendChild(fragment);
         setupProductClickHandlers('#accesoriosGallery');
-        setTimeout(() => window.cyberduck.applyLazyLoading(), 100);
+        window.cyberduck.applyLazyLoading();
         hideLoading();
       }
 
@@ -283,7 +283,11 @@
                 }
               }
               shuffleArray(allItems);
-              renderItemsFromSheet(allItems);
+        renderItemsFromSheet(allItems);
+        // Apply lazy loading after rendering
+        setTimeout(() => {
+          window.cyberduck.applyLazyLoading('#accesoriosGallery .gallery__image');
+        }, 100);
             } else {
               hideLoading();
             }

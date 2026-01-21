@@ -388,6 +388,11 @@ body::after{
 
 .gallery__image.is-loaded {
   animation: fadeIn 0.3s ease-in;
+  background: none !important;
+  background-image: var(--loaded-image) !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
 }
 
 @keyframes fadeIn {
