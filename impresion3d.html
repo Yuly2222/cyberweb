@@ -119,12 +119,16 @@
           const name = item.querySelector('.gallery__name')?.textContent || 'Producto';
           const price = item.querySelector('.gallery__price')?.textContent || '';
           const category = item.getAttribute('data-category') || '';
-          const imgDiv = item.querySelector('.gallery__image');
-          let image = '';
-          if (imgDiv) {
-            const bg = getComputedStyle(imgDiv).backgroundImage;
-            image = (bg && bg !== 'none') ? bg : '';
-          }
+            const imgDiv = item.querySelector('.gallery__image');
+            let image = '';
+            if (imgDiv) {
+              const imgElement = imgDiv.querySelector('img');
+              if (imgElement) {
+                image = imgElement.src;
+              } else {
+                image = imgDiv.getAttribute('data-bg-image') || '';
+              }
+            }
 
           const desc = item.querySelector('.gallery__desc')?.textContent || '';
           const prod = { name, price, category, image, desc };
