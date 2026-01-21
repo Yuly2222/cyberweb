@@ -141,12 +141,32 @@
       document.getElementById('pd-add').addEventListener('click', function(){
         try{
           const raw = localStorage.getItem('cyberduck:selectedProduct');
-          const item = raw ? JSON.parse(raw) : { name: document.getElementById('pd-title').textContent };
+          let item = raw ? JSON.parse(raw) : { name: document.getElementById('pd-title').textContent };
+          // Ensure price is set from the page if not in localStorage
+          if (!item.price) {
+            item.price = document.getElementById('pd-price').textContent || '0';
+          }
           const cartRaw = localStorage.getItem('cyberduck:cart');
           const cart = cartRaw ? JSON.parse(cartRaw) : [];
           cart.push(item);
           localStorage.setItem('cyberduck:cart', JSON.stringify(cart));
-          try{ window.dispatchEvent(new Event('cyberduck:cart-updated')); }catch(e){}
+
+          // Update cart UI using global renderCart if available
+          if (window.cyberduck && window.cyberduck.renderCart) {
+            window.cyberduck.renderCart();
+          } else {
+            // Fallback manual update
+            const cartCount = document.getElementById('cartCount');
+            if (cartCount) cartCount.textContent = cart.length;
+            let total = 0;
+            cart.forEach(it => {
+              const num = (it.price || '').toString().replace(/\$/g, '').replace(/\./g, '').replace(',', '.');
+              const val = parseFloat(num) || 0;
+              total += val;
+            });
+            const cartTotal = document.getElementById('cartTotal');
+            if (cartTotal) cartTotal.textContent = 'Total: $' + (total ? total.toLocaleString('es-CO') : '0');
+          }
           alert('Producto añadido al carrito');
         }catch(e){ console.warn(e); }
       });

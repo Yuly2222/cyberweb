@@ -115,10 +115,10 @@
         el.innerHTML = '<div style="width:56px;height:56px;border-radius:8px;background-size:cover;background-position:center;'+(it.image?('background-image:'+ (it.image.indexOf('url(')===0?it.image:'url('+it.image+')')):'')+'"></div>'+
           '<div style="flex:1"><div style="font-weight:800">'+(it.name||'Producto')+'</div><div style="color:var(--muted);font-size:13px">'+priceDisplay+'</div></div>';
         itemsWrap.appendChild(el);
-        const num = typeof it.price === 'number' ? it.price : parseFloat((it.price||'').toString().replace(/\./g, '').replace(',', '.')) || 0;
+        const num = typeof it.price === 'number' ? it.price : parseFloat((it.price||'').toString().replace(/\$/g, '').replace(/\./g, '').replace(',', '.')) || 0;
         total += num;
       });
-      totalEl.textContent = 'Total: ' + (total?formatPrice(total):'—');
+      totalEl.textContent = 'Total: $' + (total ? formatPrice(total) : '0');
 
       // Set total in hidden input
       const totalInput = document.getElementById('totalInput');

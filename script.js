@@ -232,7 +232,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const meta = document.createElement('div'); meta.className = 'cart-item__meta';
         const name = document.createElement('div'); name.className = 'cart-item__name'; name.textContent = it.name || 'Producto';
-        const price = document.createElement('div'); price.className = 'cart-item__price'; price.textContent = (it.price ? parseFloat(it.price.toString().replace(/\./g, '').replace(',', '.')) : 0).toLocaleString('es-CO') || '';
+        const parsedPrice = parseFloat((it.price || '').toString().replace(/\$/g, '').replace(/\./g, '').replace(',', '.'));
+        const price = document.createElement('div'); price.className = 'cart-item__price'; price.textContent = isNaN(parsedPrice) ? '—' : parsedPrice.toLocaleString('es-CO');
 
         meta.appendChild(name); meta.appendChild(price);
 
@@ -251,15 +252,18 @@ document.addEventListener('DOMContentLoaded', () => {
         itemsWrap.appendChild(itemEl);
 
         // Try to parse numeric price for total (best-effort) - handle Spanish format
-        const num = (it.price || '').toString().replace(/\./g, '').replace(',', '.');
+        const num = (it.price || '').toString().replace(/\$/g, '').replace(/\./g, '').replace(',', '.');
         const val = parseFloat(num) || 0;
         total += val;
       });
 
-      totalEl.textContent = 'Total: ' + (total ? formatPrice(total) : '—');
+      totalEl.textContent = 'Total: $' + (total ? formatPrice(total) : '0');
 
-      
+
     }
+
+    // Expose renderCart globally
+    window.cyberduck.renderCart = renderCart;
 
     // Listen for explicit cart-updated events (fired after cart change in-page)
     window.addEventListener('cyberduck:cart-updated', function(){
