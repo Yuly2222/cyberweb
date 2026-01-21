@@ -162,11 +162,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const price = product.dataset.price || (product.querySelector('.gallery__price') && product.querySelector('.gallery__price').textContent) || '—';
       const desc = product.dataset.description || (product.querySelector('.gallery__meta') && product.querySelector('.gallery__meta').textContent) || '';
       let image = '';
-      const innerImage = product.querySelector('.gallery__image');
-      if(innerImage){
-        const style = getComputedStyle(innerImage);
-        image = (style.backgroundImage && style.backgroundImage !== 'none') ? style.backgroundImage : (style.background || '');
+      const imgElement = product.querySelector('.gallery__image img');
+      if(imgElement){
+        image = imgElement.src;
+        console.log('Found img element with src:', image);
+      } else {
+        // Fallback to dataset if img element not created yet (lazy loading)
+        const galleryImage = product.querySelector('.gallery__image');
+        image = galleryImage ? galleryImage.dataset.bgImage || '' : '';
+        console.log('No img element found, using dataset.bgImage:', image);
       }
+      console.log('Final image for product:', name, image);
       return {name, price, desc, image};
     }
 

@@ -140,8 +140,7 @@
             const imgDiv = item.querySelector('.gallery__image');
             let image = '';
             if (imgDiv) {
-              const bg = getComputedStyle(imgDiv).backgroundImage;
-              image = (bg && bg !== 'none') ? bg : '';
+              image = imgDiv.getAttribute('data-bg-image') || '';
             }
             const desc = item.querySelector('.gallery__desc')?.textContent || '';
             const prod = { name, price, category, image, desc };

@@ -119,20 +119,18 @@
 
         const imgEl = document.getElementById('pd-image');
         if(image){
-          // if background-image string like url("...") set it
-          if(image.indexOf('url(') === 0){
-            imgEl.style.backgroundImage = image;
-            imgEl.style.backgroundSize = 'contain';
-            imgEl.style.backgroundPosition = 'center';
-            imgEl.style.backgroundRepeat = 'no-repeat';
-          } else {
-            // Assume it's a plain URL
-            imgEl.style.backgroundImage = `url(${image})`;
-            imgEl.style.backgroundSize = 'contain';
-            imgEl.style.backgroundPosition = 'center';
-            imgEl.style.backgroundRepeat = 'no-repeat';
-          }
+          // Create an img element for better display
+          const actualImg = document.createElement('img');
+          actualImg.src = image.replace(/^url\(['"]?/, '').replace(/['"]?\)$/, ''); // Remove url() wrapper if present
+          actualImg.style.width = '100%';
+          actualImg.style.height = '100%';
+          actualImg.style.objectFit = 'contain';
+          actualImg.style.borderRadius = '16px';
+          actualImg.alt = title;
+          imgEl.innerHTML = '';
+          imgEl.appendChild(actualImg);
         } else {
+          imgEl.innerHTML = '';
           imgEl.style.background = 'linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01))';
         }
       }catch(e){ console.warn(e); }
